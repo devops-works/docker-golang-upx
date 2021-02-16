@@ -1,6 +1,6 @@
-FROM golang:1.15
+FROM golang:1.16
 
-ARG upx_version=3.95
+ARG upx_version=3.96
 ARG GOPROXY
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
