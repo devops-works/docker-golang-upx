@@ -1,4 +1,4 @@
-FROM golang:1.16
+FROM golang:1.17
 
 ARG upx_version=3.96
 ARG GOPROXY
