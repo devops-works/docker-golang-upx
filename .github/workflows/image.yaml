@@ -14,7 +14,7 @@ on:
       - "**.md"
 
 env:
-  DOCKERHUB_SLUG: pratikimprowise/golang-upx
+  DOCKERHUB_SLUG: pratikimprowise/golang
   GOLANG_VERSION: 1.17
 
 jobs:
@@ -44,7 +44,14 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6,linux/mips64le,linux/mips64
+          platforms: |
+            linux/amd64
+            linux/386
+            linux/arm64
+            linux/arm/v7
+            linux/arm/v6
+            linux/mips64le
+            linux/mips64
           push: true
           build-args: |
             GO_VERSION=${{ env.GOLANG_VERSION }}
