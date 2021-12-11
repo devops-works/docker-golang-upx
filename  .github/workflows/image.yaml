@@ -5,8 +5,6 @@ on:
     branches:
       - "master"
       - "main"
-    tags:
-      - "v*"
     paths-ignore:
       - "**.md"
   pull_request:
@@ -48,7 +46,8 @@ jobs:
           context: .
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6,linux/mips64le,linux/mips64
           push: true
-          build-args: ${{ env.GOLANG_VERSION }}
+          build-args: |
+            GO_VERSION=${{ env.GOLANG_VERSION }}
           tags: ${{ env.DOCKERHUB_SLUG }}:${{ env.GOLANG_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
