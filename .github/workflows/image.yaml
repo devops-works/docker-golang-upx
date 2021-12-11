@@ -56,5 +56,5 @@ jobs:
           build-args: |
             GO_VERSION=${{ env.GOLANG_VERSION }}
           tags: ${{ env.DOCKERHUB_SLUG }}:${{ env.GOLANG_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
