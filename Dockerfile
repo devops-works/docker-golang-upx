@@ -7,8 +7,8 @@ ARG TARGETARCH
 RUN if [[ $TARGETARCH == "amd64" ]]; then ARCHH="amd64"; \
   elif [[ $TARGETARCH == "arm" ]];then ARCHH="arm"; \
   elif [[ $TARGETARCH == "arm64" ]];then ARCHH="arm64"; \
-  elif [[ $TARGETARCH == "mips64le," ]];then ARCHH="mipsel"; \
-  elif [[ $TARGETARCH == "mips64," ]];then ARCHH="mips"; \
+  elif [[ $TARGETARCH == "mips64le" ]];then ARCHH="mipsel"; \
+  elif [[ $TARGETARCH == "mips64" ]];then ARCHH="mips"; \
   elif [[ $TARGETARCH == "386" ]];then ARCHH="i386"; fi; \
   cd /tmp; \
   apt-get update; \
