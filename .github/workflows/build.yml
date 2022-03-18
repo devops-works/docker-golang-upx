@@ -26,7 +26,9 @@ jobs:
           images: devopsworks/golang-upx
           tags: |
             type=raw,value=latest
+            type=raw
             type=match,pattern=\d+.\d+.\d+
+            type=match,pattern=\d+.\d+
 
       - name: Build and push
         uses: docker/build-push-action@v2
