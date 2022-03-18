@@ -3,7 +3,8 @@ name: Publish DockerHub image
 on:
   push:
     tags:
-      - 'v*'
+      # - 'v*'
+      - '*'
 
 jobs:
   build-container:
