@@ -26,7 +26,7 @@ jobs:
           images: devopsworks/golang-upx
           tags: |
             type=raw,value=latest
-            type=raw
+            type=ref,event=tag
             type=match,pattern=\d+.\d+.\d+
             type=match,pattern=\d+.\d+
 
