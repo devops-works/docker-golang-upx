@@ -25,7 +25,7 @@ jobs:
         with:
           images: devopsworks/golang-upx
           tags: |
-            type=match,pattern=\d.\d.\d,value=latest
+            type=raw,value=latest
             type=match,pattern=\d.\d.\d
 
       - name: Build and push
