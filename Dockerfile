@@ -1,8 +1,8 @@
-ARG GO_VERSION=1.17
+ARG GO_VERSION=1.20
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS base
 SHELL ["/bin/bash", "-cex"]
-ARG upx_version=3.96
+ARG upx_version=4.0.2
 ARG TARGETARCH
 RUN if [[ $TARGETARCH == "amd64" ]]; then ARCHH="amd64"; \
   elif [[ $TARGETARCH == "arm" ]];then ARCHH="arm"; \
