@@ -14,8 +14,8 @@ on:
       - "**.md"
 
 env:
-  DOCKERHUB_SLUG: pratikimprowise/golang
-  GOLANG_VERSION: 1.17
+  DOCKERHUB_SLUG: devopsworks/golang-upx
+  GOLANG_VERSION: 1.20
 
 jobs:
   build:
