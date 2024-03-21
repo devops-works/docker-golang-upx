@@ -2,7 +2,7 @@ FROM golang:1.22.1
 
 ARG upx_version=4.2.2
 ARG GOPROXY
-ARG TARGETARCH=amd64
+ARG TARGETARCH=${TARGETARCH:-amd64}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
