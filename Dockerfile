@@ -1,6 +1,6 @@
-FROM golang:1.22.4
+FROM golang:1.23.2
 
-ARG upx_version=4.2.2
+ARG upx_version=4.2.4
 ARG GOPROXY
 ARG TARGETARCH=${TARGETARCH:-amd64}
 
