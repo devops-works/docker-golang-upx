@@ -1,4 +1,4 @@
-FROM golang:1.24.0
+FROM golang:1.24.2
 
 ARG upx_version=4.2.4
 ARG GOPROXY
@@ -13,4 +13,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends xz-utils && \
   chmod +x /usr/local/bin/upx && \
   apt-get remove -y xz-utils && \
   rm -rf /var/lib/apt/lists/*
-
