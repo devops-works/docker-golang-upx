@@ -10,7 +10,7 @@ See [Docker Hub](https://hub.docker.com/r/devopsworks/golang-upx) for final imag
 ## Usage
 
 ```dockerfile
-FROM devopsworks/golang-upx:1.24 AS builder
+FROM devopsworks/golang-upx:1.25 AS builder
 
 WORKDIR /src
 
