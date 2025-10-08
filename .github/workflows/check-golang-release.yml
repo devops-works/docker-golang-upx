@@ -1,0 +1,149 @@
+name: Check for new Golang releases
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-golang-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new-version: ${{ steps.check.outputs.new-version }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for new Go version
+        id: check
+        run: |
+          # Get the latest stable Go version from official Go download page
+          LATEST_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n1 | sed 's/go//')
+          echo "Latest Go version: $LATEST_VERSION"
+          
+          # Get current version from Dockerfile
+          CURRENT_VERSION=$(grep -oP 'FROM golang:\K[0-9]+\.[0-9]+\.[0-9]+' Dockerfile | head -n1)
+          echo "Current Dockerfile version: $CURRENT_VERSION"
+          
+          # Compare versions
+          if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+            echo "New version detected: $LATEST_VERSION"
+            echo "new-version=true" >> $GITHUB_OUTPUT
+            echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "No new version"
+            echo "new-version=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue for new version
+        if: steps.check.outputs.new-version == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.check.outputs.version }}';
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'golang-update'
+            });
+            
+            // Check if issue already exists
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes(version)
+            );
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `New Golang version ${version} available`,
+                body: `A new Golang version **${version}** has been released.\n\nWorkflow will automatically build and push the new Docker image.`,
+                labels: ['golang-update', 'automation']
+              });
+            }
+
+  build-and-push:
+    needs: check-golang-version
+    if: needs.check-golang-version.outputs.new-version == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Dockerfile
+        run: |
+          NEW_VERSION="${{ needs.check-golang-version.outputs.version }}"
+          sed -i "s/FROM golang:[0-9]\+\.[0-9]\+\.[0-9]\+/FROM golang:${NEW_VERSION}/" Dockerfile
+          echo "Updated Dockerfile to Go version ${NEW_VERSION}"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            devopsworks/golang-upx
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ needs.check-golang-version.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Commit updated Dockerfile
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add Dockerfile
+          git commit -m "chore: update Golang to version ${{ needs.check-golang-version.outputs.version }}" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+      - name: Create Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ needs.check-golang-version.outputs.version }}';
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${version}`,
+              name: `Golang ${version}`,
+              body: `Automated release for Golang version ${version}\n\n- Updated base image to golang:${version}\n- Built for linux/amd64 and linux/arm64`,
+              draft: false,
+              prerelease: false
+            });
