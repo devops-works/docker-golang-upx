@@ -20,8 +20,13 @@ jobs:
         id: check
         run: |
           # Get the latest stable Go version from official Go download page
-          LATEST_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n1 | sed 's/go//')
-          echo "Latest Go version: $LATEST_VERSION"
+          LATEST_VERSION=$(curl -fs https://go.dev/VERSION?m=text | head -n1 | sed 's/go//')
+          if [ -z "$LATEST_VERSION" ]; then
+            echo "Latest Go version: $LATEST_VERSION"
+          else
+            echo "Failure in retrieving Latest Go version."
+            exit 1
+          fi
           
           # Get current version from Dockerfile
           CURRENT_VERSION=$(grep -oP 'FROM golang:\K[0-9]+\.[0-9]+\.[0-9]+' Dockerfile | head -n1)
