@@ -148,7 +148,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${version}`,
               name: `Golang ${version}`,
-              body: `Automated release for Golang version ${version}\n\n- Updated base image to golang:${version}\n- Built for linux/amd64 and linux/arm64`,
+              body: `Automated release for Golang version ${version}\n\n- Updated base image to golang:${version}\n- Built for linux/amd64 and linux/arm64\n\n## Docker Images\n\n- Docker Hub: [devopsworks/golang-upx:${version}](https://hub.docker.com/r/devopsworks/golang-upx)\n- GitHub Container Registry: [ghcr.io/${context.repo.owner}/${context.repo.repo}:${version}](https://github.com/${context.repo.owner}/${context.repo.repo}/pkgs/container/${context.repo.repo})`,
               draft: false,
               prerelease: false
             });
