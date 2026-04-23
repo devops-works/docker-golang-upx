@@ -8,6 +8,7 @@ on:
 
 jobs:
   check-golang-version:
+    if: github.repository_owner == 'devops-works'
     runs-on: ubuntu-latest
     outputs:
       new-version: ${{ steps.check.outputs.new-version }}
