@@ -143,7 +143,7 @@ jobs:
         with:
           script: |
             const version = '${{ needs.check-golang-version.outputs.version }}';
-            await github.rest.repos.createRelease({
+            const release = {
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: `v${version}`,
@@ -151,4 +151,29 @@ jobs:
               body: `Automated release for Golang version ${version}\n\n- Updated base image to golang:${version}\n- Built for linux/amd64 and linux/arm64\n\n## Docker Images\n\n- Docker Hub: [devopsworks/golang-upx:${version}](https://hub.docker.com/r/devopsworks/golang-upx)\n- GitHub Container Registry: [ghcr.io/${context.repo.owner}/${context.repo.repo}:${version}](https://github.com/${context.repo.owner}/${context.repo.repo}/pkgs/container/${context.repo.repo})`,
               draft: false,
               prerelease: false
-            });
+            };
+
+            try {
+              const existingRelease = await github.rest.repos.getReleaseByTag({
+                owner: release.owner,
+                repo: release.repo,
+                tag: release.tag_name
+              });
+
+              console.log(`Release ${release.tag_name} already exists, updating release ${existingRelease.data.id}.`);
+              await github.rest.repos.updateRelease({
+                owner: release.owner,
+                repo: release.repo,
+                release_id: existingRelease.data.id,
+                name: release.name,
+                body: release.body,
+                draft: release.draft,
+                prerelease: release.prerelease
+              });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+
+              await github.rest.repos.createRelease(release);
+            }
