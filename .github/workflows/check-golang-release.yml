@@ -20,7 +20,7 @@ jobs:
         id: check
         run: |
           # Get the latest stable Go version from official Go download page
-          LATEST_VERSION=$(curl -fs https://go.dev/VERSION?m=text | head -n1 | sed 's/go//')
+          LATEST_VERSION=$(curl -fs 'https://go.dev/dl/?mode=json' | jq -r '.[0].version' | sed 's/^go//')
           if [ -z "$LATEST_VERSION" ]; then
             echo "Failure in retrieving Latest Go version."
             exit 1
